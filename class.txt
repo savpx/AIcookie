@@ -1,0 +1,4 @@
+game
+close
+bonus
+upgrade

@@ -1,0 +1,23 @@
+# Виртуальное окружение
+venv/
+
+# Собранные и аугментированные скриншоты (генерируются screener.py / augment.py)
+screenshots/
+screenshots_augmented/
+
+# Служебные артефакты обучения
+runs/**/weights/last.pt
+runs/**/train_batch*.jpg
+runs/**/val_batch*.jpg
+
+# Кэш разметки
+*.cache
+
+# Системные файлы
+__pycache__/
+*.pyc
+Thumbs.db
+desktop.ini
+
+# Скачанные предобученные веса
+yolov8n.pt
