@@ -1,68 +1,36 @@
-# AI Cookie Clicker — как запустить
+# AI Cookie
 
-## 1. Установка
+Учебный проект: бот-кликер для браузерной игры **Cookie Clicker** на базе
+компьютерного зрения. Нейросеть (YOLOv8) распознаёт элементы интерфейса на
+экране, а бот сам кликает печеньку, закрывает рекламу, собирает бонусы и раз в
+10 секунд покупает улучшения снизу вверх.
 
-Откройте терминал в папке проекта и выполните:
+Модель определяет 9 классов: `game`, `close`, `bonus` и 6 строк панели
+улучшений `upgrade1`…`upgrade6`.
+
+## Запуск
+
+Установка зависимостей:
 
 ```
 py -3.12 -m venv venv
 venv\Scripts\activate
-pip install ultralytics pyautogui mss albumentations opencv-python pillow
+pip install -r requirements.txt
 ```
 
-## 2. Обучение модели
-
-```
-python train.py
-```
-
-Готовая модель появится в `runs/detect/cookie_detector/weights/best.pt`.
-
-## 3. Запуск бота (автокликера)
+Запуск бота:
 
 ```
 python app.py
 ```
 
-Бот быстро и непрерывно кликает по печеньке. Он ненадолго прерывается только чтобы:
-- закрыть рекламу,
-- собрать бонусную печеньку,
-- купить улучшение.
-
 **Остановка:** уведите мышь в левый верхний угол экрана.
 
-## 4. Автосбор скриншотов (Задача 5)
+## Обучение модели (необязательно)
+
+Готовая модель уже лежит в `runs/detect/cookie_detector/weights/best.pt`.
+Чтобы переобучить:
 
 ```
-python screener.py
+python train.py
 ```
-
-Делает скриншот каждые 5 секунд в папку `screenshots/`.
-**Остановка:** `Ctrl+C`.
-
-## 5. Увеличение датасета
-
-```
-python augment.py
-```
-
-Создаёт аугментированные копии из `screenshots/` в `screenshots_augmented/`.
-
-## 6. Авторазметка в X-AnyLabeling
-
-```
-python ptToOnnx.py
-```
-
-Затем в X-AnyLabeling:
-1. Откройте папку с картинками (File → Open Dir).
-2. На левой панели нажмите кнопку **AI** (Auto Labeling).
-3. Нажмите **+** (Load Custom Model) и выберите файл `config.yaml`.
-4. Нажимайте **D** и **I** — модель сама расставит боксы.
-
-Классы модели: `game`, `close`, `bonus`, `upgrade`.
-
-## 7. Экспорт разметки в YOLO
-
-В X-AnyLabeling: меню **Export** → **YOLO HBB** → выбрать папку проекта →
-галочки **Save with images** и **Skip empty labels** → **OK**.

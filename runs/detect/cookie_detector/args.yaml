@@ -5,7 +5,7 @@ data: data.yaml
 epochs: 100
 time: null
 patience: 50
-batch: 16
+batch: 8
 imgsz: 640
 save: true
 save_period: -1
@@ -13,8 +13,8 @@ cache: false
 device: ''
 workers: 0
 project: null
-name: cookie_detector-2
-exist_ok: false
+name: cookie_detector
+exist_ok: true
 pretrained: true
 cls_remap: true
 optimizer: auto
@@ -111,4 +111,4 @@ auto_augment: randaugment
 erasing: 0.4
 cfg: null
 tracker: tracktrack.yaml
-save_dir: C:\AIcookie\runs\detect\cookie_detector-2
+save_dir: C:\AIcookie\runs\detect\cookie_detector

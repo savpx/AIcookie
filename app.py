@@ -1,8 +1,9 @@
-import pyautogui
+import time
+
 import cv2
 import numpy as np
+import pyautogui
 from ultralytics import YOLO
-import time
 
 # Загрузка обученной модели
 model = YOLO('runs/detect/cookie_detector/weights/best.pt')
@@ -15,7 +16,14 @@ pyautogui.PAUSE = 0
 CLICKS_PER_BURST = 30
 CLICK_DELAY = 0.01  # пауза между кликами (0.01 = ~100 кликов/сек)
 
-CONF = 0.7  # порог уверенности
+CONF = 0.5  # порог уверенности
+
+# Раз в сколько секунд покупать улучшения (снизу вверх)
+UPGRADE_INTERVAL = 10.0
+
+# Имена классов улучшений в порядке снизу вверх задаётся координатой Y,
+# а не номером, поэтому просто собираем все, что начинаются с "upgrade"
+UPGRADE_CLASSES = [f"upgrade{i}" for i in range(1, 10)]
 
 
 def click_at(center_x, center_y):
@@ -24,7 +32,7 @@ def click_at(center_x, center_y):
 
 def detect(screenshot_np):
     """Возвращает самый уверенный бокс (x1,y1,x2,y2) для каждого класса."""
-    results = model(screenshot_np)
+    results = model(screenshot_np, verbose=False)
     found = {}
     for result in results:
         for box in result.boxes:
@@ -42,7 +50,26 @@ def box_center(box):
     return (x1 + x2) / 2, (y1 + y2) / 2
 
 
+def buy_upgrades(found):
+    """Кликает по центру каждого улучшения снизу вверх (по возрастанию Y)."""
+    upgrades = [
+        (name, box) for name, box in found.items()
+        if name in UPGRADE_CLASSES
+    ]
+    if not upgrades:
+        return False
+    # снизу вверх: самый нижний (больший Y) кликается первым
+    upgrades.sort(key=lambda item: box_center(item[1])[1], reverse=True)
+    for name, box in upgrades:
+        cx, cy = box_center(box)
+        click_at(cx, cy)
+        print(f"Покупка {name}: ({cx:.0f}, {cy:.0f})")
+        time.sleep(0.3)
+    return True
+
+
 def main_loop():
+    last_upgrade_time = 0.0
     while True:
         # 1. Смотрим на экран
         screenshot = pyautogui.screenshot()
@@ -65,21 +92,12 @@ def main_loop():
             time.sleep(0.1)
             continue
 
-        # 4. Купить улучшения: кликаем по строкам панели сверху вниз
-        #    (верхние улучшения самые дешёвые и обычно доступны)
-        if 'upgrade' in found:
-            x1, y1, x2, y2 = found['upgrade']
-            cx = (x1 + x2) / 2
-            h = y2 - y1
-            # кликаем по строкам панели сверху вниз
-            # (верхние улучшения самые дешёвые и обычно доступны)
-            for frac in (0.15, 0.30, 0.45, 0.60):
-                cy = y1 + h * frac
-                pyautogui.click(cx, cy)
-                time.sleep(0.05)
-            print(f"Покупка улучшений в панели x={cx:.0f}")
-            time.sleep(0.1)
-            continue
+        # 4. Каждые UPGRADE_INTERVAL секунд покупаем улучшения снизу вверх
+        now = time.time()
+        if now - last_upgrade_time >= UPGRADE_INTERVAL:
+            if buy_upgrades(found):
+                last_upgrade_time = now
+                continue
 
         # 5. Иначе — быстро и непрерывно кликаем по игровому полю
         if 'game' in found:

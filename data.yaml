@@ -2,5 +2,5 @@ path: ./
 train: images/train
 val: images/val
 
-nc: 4
-names: ['game', 'close', 'bonus', 'upgrade']
+nc: 9
+names: ['game', 'close', 'bonus', 'upgrade1', 'upgrade2', 'upgrade3', 'upgrade4', 'upgrade5', 'upgrade6']
