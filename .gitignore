@@ -13,6 +13,9 @@ runs/**/val_batch*.jpg
 # Кэш разметки
 *.cache
 
+# Отладочные кадры бота (генерируются при COOKIE_DEBUG=1)
+debug_frames/
+
 # Системные файлы
 __pycache__/
 *.pyc
